@@ -1,0 +1,20 @@
+[project]
+name = "skill-scraping"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "jupyter>=1.1.1",
+    "markitdown[all]>=0.1.1",
+    "matplotlib>=3.10.1",
+    "numpy>=2.2.5",
+    "openai>=1.76.2",
+    "pandas>=2.2.3",
+    "playwright>=1.52.0",
+    "python-dotenv>=1.1.0",
+    "python-ulid>=3.0.0",
+    "requests>=2.32.3",
+    "steel-sdk>=0.2.0",
+]
