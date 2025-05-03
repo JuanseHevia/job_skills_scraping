@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import asyncio
 import datetime
 import json
 from openai import OpenAI
@@ -6,7 +7,7 @@ from pydantic import BaseModel
 from ulid import ULID
 import markitdown
 import os
-from scraper import Scraper
+from .scraper import Scraper
 import argparse
 from typing import Dict, List, Literal
 
@@ -38,18 +39,12 @@ class JobExtractor(Scraper):
     openai_model: str = field(default="gpt-4o-mini-2024-07-18")
     metadata: Dict = field(default_factory=dict)
 
-    def __post_init__(self):
-        super().__post_init__()
-
-        # create OpenAI client
-        self.openai_client = OpenAI()
-
-    def _get_html(self):
+    async def _get_html(self):
         """
         Get the HTML content of the job posting.
         """
         self.logger.info(f"Getting HTML content from {self.url}")
-        self.page.goto(self.url)
+        await self.page.goto(self.url)
 
         # go to "section detalle"
         post_info = self.page.locator("#ficha-detalle")
@@ -58,13 +53,17 @@ class JobExtractor(Scraper):
         self.temp_id = str(ULID())
         self.temp_dir = os.path.join("temp", f"{self.temp_id}.html")
         with open(self.temp_dir, "w", encoding="utf-8") as f:
-            f.write(post_info.inner_html())
+            _html = await post_info.inner_html()
+            f.write(_html)
         self.logger.info("HTML content saved to temp.html")
 
     def _query_openai(self) -> JobPosting:
         """
         Query OpenAI for structured output.
         """
+        # create OpenAI client
+        self.openai_client = OpenAI()
+
         completion = self.openai_client.beta.chat.completions.parse(
             model=self.openai_model,
             messages=[
@@ -100,13 +99,12 @@ class JobExtractor(Scraper):
         self.logger.info("Parsing OpenAI response...")
         return completion.choices[0].message.parsed
 
-
-    def scrape(self):
+    async def scrape(self):
         """
         Scrape the job posting from the given URL.
         """
         # get the HTML content of the job posting
-        self._get_html()
+        await self._get_html()
 
         # convert it to Markdown
         self.logger.info("Converting HTML to Markdown...")
@@ -135,7 +133,25 @@ class JobExtractor(Scraper):
                 json.dump(self.structured_output,
                           f, indent=4, ensure_ascii=False)
             self.logger.info(f"Structured data saved to {self.output_filepath}")
-        
+
+async def run_scaper(url: str, output_filepath: str, md_object: markitdown.MarkItDown):
+    """
+    Run the scraper for the given URL.
+    Args:
+        url (str): The URL to scrape.
+        output_filepath (str): The path to save the structured data.
+        md_object (markitdown.MarkItDown): The MarkItDown object to use for conversion.
+    Returns:
+        None
+    """
+    # create a JobExtractor instance
+    job_extractor = JobExtractor(url=url,
+                                 output_filepath=output_filepath,
+                                 md_object=md_object,
+                                 logger_name="JobExtractor",)
+
+    # scrape the job posting
+    await job_extractor.run()
 
 if __name__ == "__main__":
     # parse command line arguments
@@ -155,10 +171,4 @@ if __name__ == "__main__":
 
 
     # create a JobExtractor instance
-    job_extractor = JobExtractor(url=args.url,
-                                 output_filepath=_output_filepath, 
-                                 md_object=md,
-                                 logger_name="JobExtractor",)
-
-    # scrape the job posting
-    job_extractor.run()
+    asyncio.run(run_scaper(args.url, _output_filepath, md))

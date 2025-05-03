@@ -18,3 +18,4 @@ logs/
 scraped/
 temp/
 .env
+data/
