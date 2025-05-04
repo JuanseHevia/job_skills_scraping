@@ -16,5 +16,7 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "python-ulid>=3.0.0",
     "requests>=2.32.3",
+    "sentence-transformers>=4.1.0",
     "steel-sdk>=0.2.0",
+    "transformers>=4.51.3",
 ]
