@@ -6,6 +6,7 @@ import re
 import logging
 import datetime
 from dataclasses import dataclass, field
+from typing import Any
 import time
 from dotenv import load_dotenv, find_dotenv
 from playwright.async_api import async_playwright
@@ -15,21 +16,21 @@ import steel
 
 @dataclass
 class Scraper:
-    steel_api_key: str = None
+    steel_api_key: str | None = None
     timeout: int = 1000000
-    output_filepath: str = None
     logger: logging.Logger = field(init=False)
     logger_name: str = field(default="scraper")
     client: Steel = field(init=False)
-    session: any = field(init=False)
-    browser: any = field(init=False)
-    page: any = field(init=False)
+    session: Any = field(init=False)
+    browser: Any = field(init=False)
+    page: Any = field(init=False)
+    output_filepath: str = field(default='')
     data_store: list = field(init=False)
 
     def __post_init__(self):
         load_dotenv(find_dotenv())
         if not self.steel_api_key:
-            self.steel_api_key = os.getenv("STEEL_API_KEY")
+            self.steel_api_key : str | None = os.getenv("STEEL_API_KEY", None)
             assert self.steel_api_key, "STEEL_API_KEY not found in environment variables."
         
         self.logger = self._initialize_logger()

@@ -16,9 +16,7 @@ if not os.path.exists(RESULTS_DIR):
 
 @dataclass
 class BumeranScraper(Scraper):
-    steel_api_key: str = None
     timeout: int = 50000000
-    output_filepath: str = None
     base_url: str = "https://www.bumeran.com.ar/en-buenos-aires/empleos-full-time-modalidad-presencial.html"
     max_page: int = field(init=False, default=1)
     max_page_limit: int = field(default=10)

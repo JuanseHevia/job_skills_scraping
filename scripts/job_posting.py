@@ -29,13 +29,13 @@ class JobPosting(BaseModel):
     skills: List[Skill]
 
 
-@dataclass
+@dataclass(kw_only=True)
 class JobExtractor(Scraper):
     """
     A class to represent a job posting.
     """
-    url: str = field(default=None)
-    md_object: markitdown.MarkItDown = field(default=None)
+    url: str
+    md_object: markitdown.MarkItDown
     openai_model: str = field(default="gpt-4o-mini-2024-07-18")
     metadata: Dict = field(default_factory=dict)
 
@@ -97,7 +97,11 @@ class JobExtractor(Scraper):
 
         # parse the response
         self.logger.info("Parsing OpenAI response...")
-        return completion.choices[0].message.parsed
+        parsed_response = completion.choices[0].message.parsed
+        if parsed_response is None:
+            self.logger.error("OpenAI response could not be parsed into JobPosting model.")
+            raise ValueError("Failed to parse OpenAI response into JobPosting model.") # TODO: add missing try catch
+        return parsed_response
 
     async def scrape(self):
         """
