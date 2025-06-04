@@ -4,22 +4,16 @@ import os
 from openai import AsyncOpenAI
 from typing import List, Dict, Any, Optional
 
-# Es buena práctica cargar la API key desde variables de entorno
-# Se asume que el usuario tendrá la variable OPENAI_API_KEY configurada
-# Para el taller, se podría pedir que la carguen directamente en el notebook
-# o usar `dotenv` para cargarla desde un .env file.
-# client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Con esta línea nos aseguramos de que las variables de entorno se carguen correctamente
+# principalmente la OPENAI_API_KEY que nos permite autenticar con la API de OpenAI.
+import dotenv
+dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
-# Ojo: Para el taller, si no quieren que los estudiantes configuren env vars,
-# pueden hacer que la API key se pase como argumento a las funciones,
-# o incluso inicializar el cliente aquí con una key proporcionada por el docente
-# (con las precauciones de seguridad y costos que esto implica).
-# Para este ejemplo, mantendré la carga desde variables de entorno, que es la mejor práctica.
-client = AsyncOpenAI() # OpenAI-python library by default looks for OPENAI_API_KEY in environment variables.
+client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 async def extract_skills_from_job_posting(
     job_posting_html: str,
-    model: str = "gpt-3.5-turbo", # Puedes usar gpt-4o, gpt-4-turbo, etc.
+    model: str = "gpt-3.5-turbo", # Puedes usar o4-mini también, que es barato y puede dar mejores resultados
     temperature: float = 0.0,
     max_retries: int = 3,
     retry_delay: int = 5
