@@ -18,4 +18,4 @@ logs/
 scraped/
 temp/
 .env
-data/
+data/.DS_Store
