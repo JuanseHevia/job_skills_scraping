@@ -31,26 +31,19 @@ A Python project for scraping job postings from Bumeran, extracting structured j
    cd skill_scraping
    ```
 
-2. (Optional) Create and activate a virtual environment:
+2. Install dependencies:
+
+   Using `uv`:
+
+   ```bash
+   uv sync
+   ```
+
+3. Create and activate a virtual environment:
 
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
-   ```
-
-3. Install dependencies:
-
-   Using Poetry:
-
-   ```bash
-   poetry install
-   ```
-
-   Or using pip:
-
-   ```bash
-   pip install --upgrade pip
-   pip install .
    ```
 
 4. Create a `.env` file in the project root with your API keys:
@@ -63,6 +56,7 @@ A Python project for scraping job postings from Bumeran, extracting structured j
 ## Configuration
 
 - `pyproject.toml`: Defines project metadata and Python dependencies.
+- `uv.lock`: uv configuration.
 - `.env`: Stores environment variables for Steel and OpenAI API keys.
 
 ## Running the Job List Scraper
